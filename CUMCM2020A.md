@@ -2,6 +2,12 @@
 id: doc
 title: CUMCM2020A   
 ---           
+## 本文档由本巨佬(pjt)上传到[我的github](https://github.com/PengJuntong)
+- **我的每日代办**
+	- [x] 卖弱
+    - [ ] 卖菜
+    - [ ] ？？？
+
 ## 1.问题的综述
 
 ### 1.1问题描述
