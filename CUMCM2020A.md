@@ -14,7 +14,6 @@ title: CUMCM2020A
 ### 1.2参赛状况
 #### 2.1 选题情况
 #### 2.2 获奖情况
-rjy
 
 ## 2.问题的背景资料
 ### 2.1问题应用背景
@@ -34,6 +33,22 @@ rjy
 3.遵循牛顿冷却定律。
 
 ### 4.2模型的解释与分析
+- **热传导的数学模型**
+焊接区域只考虑厚度，其温度变化可由如下一维热传导方程的初边值问题描述：
+$$
+    \begin{cases}
+    u_t=au_{xx}, \quad (x,t)\in (x_l,x_r) \times(0,+\infty),&\\
+    u(x,0)=u_T, \quad x\in(x_l,x_r),&
+    \end{cases}
+$$
+$$
+\left\{\begin{array}{l}
+u_{t}=a u_{x x}, \quad(x, t) \in\left(x_{l}, x_{r}\right) \times(0,+\infty), \\
+u(x, 0)=u_{T}, \quad x \in\left(x_{l}, x_{r}\right), \\
+-\beta u_{x}\left(x_{l}\right)+u\left(x_{l}\right)=g(v t), \quad t \in(0,+\infty) \\
+\beta u_{x}\left(x_{r}\right)+u\left(x_{r}\right)=g(v t), \quad t \in(0,+\infty)
+\end{array}\right.
+$$
 
 
 ### 4.3实验结果
