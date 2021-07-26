@@ -33,7 +33,10 @@ title: CUMCM2020A
 ## 2.问题的背景资料
 ### 2.1问题应用背景
 本题基于电子设备生产过程中的重要工艺——回流焊技术命制。炉温曲线是该生产过程特性的综合体现，对生产能效，产品良率有重要影响。对炉温曲线进行优化分析意义重大。
+使用计算机技术对回流焊焊接工艺进行仿真的方法得到了广泛的关注，此方法可以大大缩短工艺准备时间，降低实验费用，提高焊接质量，减小焊接缺陷。
+通过使用PCBCAD数据的产品模型结构建立，回流焊工艺仿真模型，可以替代传统的在线参数的设置过程，甚至可以用来在生产前确保PCB设计与回流焊工艺的兼容性，指导可制造性设计(DFM)，该仿真模型也可以消除使用热电偶测试时无法稷盖全部产品区域的缺陷，PCB组件模型求解器和构建的回流焊炉模型，对于特定的工艺设置，可以较精确地预测PCB组件的回流焊温度曲线。使用该方法在PCB设计阶段来进行新产品的工艺优化，可以很简单地确保产品设计与工艺设备的相容性。
 ### 2.2问题技术背景
+回流焊技术在电子制造领域并不陌生，我们电脑内使用的各种板卡上的元件都是通过这种工艺焊接到线路板上的，这种设备的内部有一个加热电路，将空气或氮气加热到足够高的温度后吹向已经贴好元件的线路板，让元件两侧的焊料融化后与主板粘结。这种工艺的优势是温度易于控制，焊接过程中还能避免氧化，制造成本也更容易控制。
 
 
 ## 3.本问题的常用建模思路
@@ -53,17 +56,17 @@ title: CUMCM2020A
 焊接区域只考虑厚度，其温度变化可由如下一维热传导方程的初边值问题描述：
 $$
 \begin{cases}
-u_t=au_{xx}, \quad (x,t)\in (x_l,x_r) \times(0,+\infty),&\\
-u(x,0)=u_T, \quad x\in(x_l,x_r),&
+&u_t=au_{xx}, &(x,t)\in (x_l,x_r) \times(0,+\infty)&,\\
+&u(x,0)=u_T,&x\in(x_l,x_r)&.
 \end{cases}
 $$
 $$
-\left\{\begin{array}{l}
-u_{t}=a u_{x x}, \quad(x, t) \in\left(x_{l}, x_{r}\right) \times(0,+\infty), \\
-u(x, 0)=u_{T}, \quad x \in\left(x_{l}, x_{r}\right), \\
--\beta u_{x}\left(x_{l}\right)+u\left(x_{l}\right)=g(v t), \quad t \in(0,+\infty) \\
-\beta u_{x}\left(x_{r}\right)+u\left(x_{r}\right)=g(v t), \quad t \in(0,+\infty)
-\end{array}\right.
+\begin{cases}
+&u_{t}=a u_{x x}, & (x, t) \in\left(x_{l}, x_{r}\right) \times(0,+\infty), \\
+&u(x, 0)=u_{T}, & x \in\left(x_{l}, x_{r}\right), \\
+&-\beta u_{x}\left(x_{l}\right)+u\left(x_{l}\right)=g(v t), & t \in(0,+\infty) ,\\
+&\beta u_{x}\left(x_{r}\right)+u\left(x_{r}\right)=g(v t), & t \in(0,+\infty).
+\end{cases}
 $$
 
 
