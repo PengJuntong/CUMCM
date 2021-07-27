@@ -59,7 +59,7 @@ title: CUMCM2020A
 - **牛顿冷却定律**
     系统温度损失速度与系统和环境的温差成正比，即：
     $$
-    \frac{du}{dt}=-k(u-u_{air}(t))
+    \frac{\mathrm du}{\mathrm dt}=-k(u-u_{air}(t))
     $$
     其中，$u,u_{air}(t),k$分别为系统的温度，系统外界的温度和冷却系数.<br/>
     给定数据为离散型，故将定律离散化，有：
@@ -84,9 +84,17 @@ title: CUMCM2020A
         $$ 
         \bold{Tem} \in A=\{(k_1,k_2,k_3,k_4) \mid k_1 \in [165,185], k_2 \in [185,205], k_3 \in [225,245], k_4 \in [245,265]\} 
         $$
+
     - 传送带速度定义为$v$，焊接区域中点的 “时间-温度” 定义为$u_m(t)$；
+  
     - $u_m(t)$和$(\bold {Tem}，v)$的映射关系记为$M_p：(\bold {Tem}，v)\rightarrow u_m(t)$
-    - 制程条件记为$H$条件.
+
+    - 制程条件记为$H$条件.炉温曲线满足$H$条件，即满足以下4个条件：
+        1) $\left|\mathrm{d} u_{m}(t) / \mathrm{d} t\right| \leqslant 3$;
+        2) $t_{2}-t_{1} \in[60,120]$, 其中, $t_{1}, t_{2}$ 分别是第一次使得 $u_{m}(t_{1})=150$ 和 $u_{m}(t_{2})=190$ 成立的时刻; 
+        3) $t_{4}-t_{3} \in[40,90]$, 其中, $t_{3} 、 t_{4}(t_{3} \leqslant t_{4})$ 是方程 $u_{m}(t)=217$ 的两个根;
+        4) $\max u_{m}(t) \in[240,250] .$
+
     - 曲线簇$\mathfrak{U}$ 
         $$
             \mathfrak{U} = \{u_m(t) \mid u_m(t)满足H条件，且u_m(t)=M_p(\bold {Tem},v)，其中\bold {Tem} \in A, v \in [65,100]\}
@@ -96,6 +104,8 @@ title: CUMCM2020A
         \max _{M_{p}\left(\bold {Tem}^{*}, v\right) \in \mathfrak{U}}v，
     $$
     其中，$\bold {Tem}^{*}=(182,293,237,254)$，求解时直接以小步长遍历即可得最大速度.
+    <br/>
+    对于问题三
 
 
 
