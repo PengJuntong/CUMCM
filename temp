@@ -1,0 +1,9 @@
+----
+$$
+\begin{cases}
+&u_{t}=a u_{x x}, & (x, t) \in\left(x_{l}, x_{r}\right) \times(0,+\infty), \\
+&u(x, 0)=u_{T}, & x \in\left(x_{l}, x_{r}\right), \\
+&-\beta u_{x}\left(x_{l}\right)+u\left(x_{l}\right)=g(v t), & t \in(0,+\infty) ,\\
+&\beta u_{x}\left(x_{r}\right)+u\left(x_{r}\right)=g(v t), & t \in(0,+\infty).
+\end{cases}
+$$
