@@ -38,8 +38,13 @@ def T_air(s):
 
     elif s >= L3+10 and s<= L4-5:
         return T4
+<<<<<<< HEAD
     elif s >= L4-5 and s <= L4+10:
         return T4+(25-T4)*(s-L4+5)/15.0
+=======
+    elif s >= L4 and s <= L4+5:
+        return T4+(25-T4)*(s-L4)/(5)
+>>>>>>> 3c4b6a53acd6e6961ff19b650cfde7d7b8091876
     else :return 25
 
 
