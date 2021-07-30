@@ -89,7 +89,7 @@ title: CUMCM2020A
     <br/>
     在上述条件下，每段分别设法确定最优的冷却系数k．确定方法如下： 依据所给数据，每段预设定一个合理的k值，由牛顿冷却定律
     $$
-    T(t+\Delta t)=T(t)(1-k\Delta t)-T_{air}(t)\Delta t
+    T(t+\Delta t)=T(t)(1-k\Delta t)+kT_{air}(t)\Delta t
     $$
     及每段相应初值迭代求得电路板在每段中的温度，再通过与题目实验数据比较以优化k值，直至与所提供数据近似一致．
 <br><br>
@@ -157,14 +157,14 @@ title: CUMCM2020A
     <br/>
     问题四还要考虑问题三的面积问题，因此是双目标函数的规划问题，考虑到面积与镜像误差的量纲不同，将两个指标归一化后进行加和，再求其最值．因此问题4可以转化成求解以下规划问题：
     $$
-    u_{m}^{*}(t)=\argmin _{u_{m}(t) \in \mathfrak{u}} P_{4}\left(u_{m}(t)\right), t \in\left[t_{q}, t_{4}\right],
+    u_{m}^{*}(t)=\argmin _{u_{m}(t) \in \mathfrak{U}} P_{4}\left(u_{m}(t)\right), t \in\left[t_{q}, t_{4}\right],
     $$
     其中：
     $$
     P_{4}\left(u_{m}(t)\right)=\frac{1}{S_{b}-S_{a}}\left(\int_{t_{3}}^{t_{q}} u_{m}(t) \mathrm{d} t-S_{a}\right)+\frac{1}{E_{b}-E_{a}}\left(\left\|u_{m}(t)-u_{m}\left(2 t_{q}-t\right)\right\|_{L_{p}}-E_{a}\right) ; \\
-    S_{a}=\min _{u_{m}(t) \in \mathfrak{u}} \int_{t_{3}}^{t_{q}} u_{m}(t) \mathrm{d} t \\
-    S_{b}=\max _{u_{m}(t) \in \mathbb{U}} \int_{t_{3}}^{t_{q}} u_{m}(t) \mathrm{d} t \\
-    E_{a}=\min _{u_{m}(t) \in \mathfrak{u}}\left\|u_{m}(t)-u_{m}\left(2 t_{q}-t\right)\right\|_{L_{p}}, t \in\left[t_{q}, t_{4}\right]
+    S_{a}=\min _{u_{m}(t) \in \mathfrak{U}} \int_{t_{3}}^{t_{q}} u_{m}(t) \mathrm{d} t \\
+    S_{b}=\max _{u_{m}(t) \in \mathfrak{U}} \int_{t_{3}}^{t_{q}} u_{m}(t) \mathrm{d} t \\
+    E_{a}=\min _{u_{m}(t) \in \mathfrak{U}}\left\|u_{m}(t)-u_{m}\left(2 t_{q}-t\right)\right\|_{L_{p}}, t \in\left[t_{q}, t_{4}\right]
     $$
     重复问题三的采样方法并计算指标，可以得到最优曲线．
 
