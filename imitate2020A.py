@@ -21,9 +21,9 @@ L5 = 30.5*11 + 5*10+25 #400.5
 def T_air(s):
 
     T1,T2,T3,T4 = 175,195,235,255
-    if s <= L0+5 and s >= L0-5:
-        return 4.61*s-22.3
-    elif s>=L0+5 and s <= L1-5:
+    if s <= L0+25 and s >= L0-5:
+        return max(4.61*s-22.3,175)
+    elif s>=L0+25 and s <= L1-5:
         return T1
     elif s >= L1-5 and s<= L1+10:
         return T1+(T2-T1)*(s-L1+5)/15.0
