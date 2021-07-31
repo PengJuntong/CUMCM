@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import math
 from sklearn.linear_model import LinearRegression
 
-data = xlrd.open_workbook('D:\\Python data\\imitate2020A\\imitate2020A\\data.xls')
+data = xlrd.open_workbook('data.xls')
 table = data.sheet_by_name(u'Sheet1')
 
 data_org = np.array(table.col_values(1)[1:])
