@@ -1,0 +1,15 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "任务-imitate2020A",
+      "appliesTo": "imitate2020A.py",
+      "type": "launch"
+    },
+    {
+      "taskLabel": "任务-imitate2020A",
+      "appliesTo": "imitate2020A.py",
+      "type": "launch"
+    }
+  ]
+}

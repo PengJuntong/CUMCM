@@ -1,0 +1,12 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "native",
+      "name": "imitate2020A.py",
+      "project": "imitate2020A.py",
+      "projectTarget": ""
+    }
+  ]
+}
