@@ -2,6 +2,8 @@ import numpy as np
 import xlrd
 from matplotlib import pyplot as plt
 import math
+import matplotlib
+import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 data = xlrd.open_workbook('data.xls')
@@ -9,7 +11,10 @@ table = data.sheet_by_name(u'Sheet1')
 
 data_org = np.array(table.col_values(1)[1:])
 time_org = np.array(table.col_values(0)[1:])
-
+Delta_t = 0.5
+speed = 70/60.0
+result_k = []
+Tair=[]
 
 L0 = 25
 L1 = 30.5*5 + 5*4+25 #193.5
@@ -17,10 +22,15 @@ L2 = 30.5*6 + 5*5+25 #228.0
 L3 = 30.5*7 + 5*6+25  #262.5
 L4 = 30.5*9 + 5*8+25  #339.5
 L5 = 30.5*11 + 5*10+25 #400.5
-
+#初始的温区设定
+T1,T2,T3,T4 = 175,195,235,255
+###
+##温度场的确定
+###
+#############################################################################################################
 def T_air(s):
 
-    T1,T2,T3,T4 = 175,195,235,255
+    
     if s <= L0+18 and s >= L0-15:
         #return min(4.61*s-22.3,175)
         return 25+(T1-25)*(s-L0+15)/33.0
@@ -45,7 +55,7 @@ def T_air(s):
 
     elif s >= L3+5 and s<= L4:
         return T4
-
+    
     elif s >= L4 and s <= L4+50:
         return T4+(90-T4)*(s-L4)/50.0
 
@@ -55,13 +65,19 @@ def T_air(s):
     else:
         return 25
 
+#画空气温度曲线
+#for time in time_org:
+#    distance = speed * time
+#    Tair.append(T_air(distance))
+#painter(Tair)
 
-Delta_t = 0.5
-speed = 70/60.0
-result_k = []
-Tair=[]
+###
+###
+#############################################################################################################
 
-#看原始数据的k值曲线
+
+#温度场的合理性检验
+
 #for i in range(len(data_org)-1):
 #    distance = speed * time_org[i]
 #    k = -(data_org[i+1]-data_org[i])/(Delta_t * (data_org[i] - T_air(distance)))
@@ -76,22 +92,12 @@ Tair=[]
 #plt.show(）
 
 
-#画图函数，横坐标距离
-def painter(y):
-    plt.figure()
-    plt.plot(time_org*speed,y)
-    plt.plot(time_org*speed,data_org)
-    plt.show()
 
 
-#画空气温度曲线
-for time in time_org:
-    distance = speed * time
-    Tair.append(T_air(distance))
-painter(Tair)
 
 
 #找最优k
+#############################################################################################################
 def search_k(start, end, k_predict):
     k_best = k_predict
     flag = False
@@ -113,13 +119,24 @@ def search_k(start, end, k_predict):
 
     return [k_best, error]
 
-print(search_k(0,291,0.017))
-print(search_k(292,351,0.018))
-print(search_k(352,412,0.025))
-print(search_k(413,534,0.021))
-print(search_k(534,708,0.02))
-
-cal_klist = [0.0194, 0.0142, 0.0213, 0.0211, 0.0168] #每段最优k
+k1=search_k(0,291,0.017)
+print(k1)
+k2=search_k(292,351,0.018)
+print(k2)
+k3=search_k(352,412,0.025)
+print(k3)
+k4=search_k(413,534,0.021)
+print(k4)
+k5=search_k(534,708,0.02)
+print(k5)
+kerror=[k1,k2,k3,k4,k5]
+cal_klist = [k1[0], k2[0], k3[0], k4[0],k5[0]] #每段最优k
+data_df=pd.DataFrame(kerror)
+data_df.columns =["k","error"]
+data_df.index = ["k1","k2","k3","k4","k5"]
+writer = pd.ExcelWriter('klist.xls')  
+data_df.to_excel(writer,float_format='%.7f')  
+writer.save()
 
 
 #根据距离返回k
@@ -138,6 +155,9 @@ def k_s(s):
         return cal_klist[3]
     if s >= L4:
         return cal_klist[4]
+#############################################################################################################
+
+
 
 #根据初值生成炉温曲线
 def u_cacl():
@@ -152,8 +172,51 @@ def u_cacl():
     return np.array(T_cacl)
 
 #画算出来的炉温曲线
-painter(u_cacl())
+#画图函数，横坐标距离
+def painter1(y):
+    #plt.figure()
+    plt.rcParams['font.family']=['Microsoft Yahei']
+    plt.title("生成炉温曲线与原始炉温曲线的比较")
+    plt.xlabel("时间(s)")
+    plt.ylabel("温度(℃)")
+    plt.plot(time_org,y)
+    plt.plot(time_org,data_org)
+    plt.savefig('生成炉温曲线与原始炉温曲线的比较.png')
+    plt.show()
+painter1(u_cacl())
 
+
+
+#更新温区温度设置,以下两幅图为问题1的答案
+T1,T2,T3,T4=182,203,237,254
+
+prob1=u_cacl()
+def painter2(y):
+    
+    plt.rcParams['font.family']=['Microsoft Yahei']
+    plt.title("新炉温曲线与原始炉温曲线的比较")
+    plt.xlabel("时间(s)")
+    plt.ylabel("温度(℃)")
+    plt.plot(time_org,y)
+    plt.plot(time_org,data_org)
+    plt.savefig('新炉温曲线与原始炉温曲线的比较.png')
+    plt.show()
+  
+
+
+def painter3(y):
+    
+    plt.rcParams['font.family']=['Microsoft Yahei']
+    plt.title("新炉温曲线")
+    plt.xlabel("时间(s)")
+    plt.ylabel("温度(℃)")
+    plt.plot(time_org,y)
+  
+    plt.savefig('新炉温曲线.png')
+    plt.show()
+
+painter2(prob1)
+painter3(prob1)
 #混沌序列
 def chao(M,a,b):
     m0 = np.random.rand()
