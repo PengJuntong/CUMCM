@@ -237,7 +237,7 @@ T1,T2,T3,T4=182,203,237,254
 #斜率检验函数
 def properrate(y):
     flag=True
-    for i in range (len(y)-1):
+    for i in range (len(y)):
         rate=(y[i+1]-y[i])*2
         if abs(rate) > 3:
             flag=False
@@ -250,7 +250,7 @@ def properrate(y):
 def propermax(y):
     flag=False
     max=0
-    for i in range (len(y)-1):
+    for i in range (len(y)):
         if y[i]>max:
             max=y[i]
         else:
@@ -260,6 +260,59 @@ def propermax(y):
     else:
         flag=False
     return flag
+
+#高于217的时间检验函数
+def hightemtime(y):
+    flag=False
+    init_i=0
+    final_i=len(y)-1
+    for i in range (len(y)):
+        if y[i]>217:
+            init_i=i
+            break
+        else:
+            continue
+    for i in range(len(y)-1):
+        if y[len(y)-1-i]>217:
+            final_i=i
+            break
+        else :
+            continue
+    deltai=final_i-init_i
+    if(deltai>80 and deltai<190):
+        flag =True
+
+    else:flag=False
+
+    return flag
+
+#温度区间持续时间检验函数
+def sptime(y):
+    flag=False
+    init_i=0
+    final_i=len(y)-1
+    for i in range (len(y)):
+        if y[i]>150:
+            init_i=i
+            break
+        else:
+            continue
+    for i in range (init_i,len(y-1)):
+        if y[i]>190:
+            final_i=i
+            break
+        else:
+            continue
+    deltai=final_i-init_i
+    if(deltai>120 and deltai<240):
+        flag =True
+
+    else:flag=False
+
+    return flag
+
+
+    
 
 
 
