@@ -161,7 +161,7 @@ def k_s(s):
 
 #根据初值生成炉温曲线
 def u_cacl():
-    T_cacl = [30.03]
+    T_cacl = [30.00]
     i = 0
     for t in np.arange(19.0,373.0, 0.5):
         distance = t*speed
@@ -188,7 +188,7 @@ painter1(u_cacl())
 
 
 #更新温区温度设置和速度设置,以下两幅图为问题1的答案
-T1,T2,T3,T4=182,203,237,254
+T1,T2,T3,T4=173,198,230,257
 speed=78/60.0
 
 prob1=u_cacl()
@@ -221,6 +221,20 @@ painter3(prob1)
 ans=[time_org,prob1]
 ans=np.transpose(ans)
 np.savetxt('..\..\prob1.csv',ans, delimiter = ',')
+
+
+
+
+
+
+###prob1结束
+##############################################################################################################
+
+###prob2
+#更新小温区温度
+T1,T2,T3,T4=182,203,237,254
+
+
 #混沌序列
 def chao(M,a,b):
     m0 = np.random.rand()
