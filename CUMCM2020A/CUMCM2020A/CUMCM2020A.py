@@ -220,8 +220,7 @@ painter2(prob1)
 painter3(prob1)
 ans=[time_org,prob1]
 ans=np.transpose(ans)
-np.savetxt('..\..\prob1.csv',ans, delimiter = ',')
-
+np.savetxt("result.csv",ans, delimiter = ',')
 
 
 
