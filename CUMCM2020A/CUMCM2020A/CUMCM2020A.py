@@ -24,25 +24,34 @@ def T_air(s):
     if s <= L0+18 and s >= L0-15:
         #return min(4.61*s-22.3,175)
         return 25+(T1-25)*(s-L0+15)/33.0
+
     elif s>=L0+18 and s <= L1:
         return T1
+
     elif s >= L1 and s<= L1+5:
         return T1+(T2-T1)*(s-L1)/5.0
 
     elif s >= L1+5 and s<= L2:
         return T2
+
     elif s >= L2 and s<= L2+5:
         return T2+(T3-T2)*(s-L2)/5.0
 
     elif s>= L2+5 and s<= L3:
         return T3
+
     elif s >= L3 and s<= L3+5:
         return T3+(T4-T3)*(s-L3)/5.0
 
     elif s >= L3+5 and s<= L4:
         return T4
-    elif s >= L4 and s <= L4+90:
-        return T4+(25-T4)*(s-L4)/90.0
+
+    elif s >= L4 and s <= L4+50:
+        return T4+(90-T4)*(s-L4)/50.0
+
+    elif s >= L4+50:
+        return 90+(25-90)*(s-L4-50)/250
+
     else:
         return 25
 
@@ -51,31 +60,36 @@ Delta_t = 0.5
 speed = 70/60.0
 result_k = []
 Tair=[]
-for i in range(len(data_org)-1):
-    distance = speed * time_org[i]
-    k = -(data_org[i+1]-data_org[i])/(Delta_t * (data_org[i] - T_air(distance)))
-    Tair.append(T_air(distance))
-    result_k.append(k)
-    #print('%.4f'%k,'%.2f'%distance, time_org[i], T_air(distance))
 
-
+#看原始数据的k值曲线
+#for i in range(len(data_org)-1):
+#    distance = speed * time_org[i]
+#    k = -(data_org[i+1]-data_org[i])/(Delta_t * (data_org[i] - T_air(distance)))
+#    Tair.append(T_air(distance))
+#    result_k.append(k)
+#    print('%.4f'%k,'%.2f'%distance, time_org[i], T_air(distance))
 #result_k.append(0)
-Tair.append(25)
 #fig = plt.figure()
 #ax = fig.add_subplot(111)
 #ax.set(ylim = [-0.03,0.03])
 #ax.plot(time_org*speed, result_k)
-#plt.show()
+#plt.show(）
 
+
+#画图函数，横坐标距离
 def painter(y):
     plt.figure()
     plt.plot(time_org*speed,y)
     plt.plot(time_org*speed,data_org)
     plt.show()
 
+
+#画空气温度曲线
+for time in time_org:
+    distance = speed * time
+    Tair.append(T_air(distance))
 painter(Tair)
-#0.02 | 0.018 | 0.025 | 0.021 | 0.01
-#4 291 351 412 534
+
 
 #找最优k
 def search_k(start, end, k_predict):
@@ -105,7 +119,9 @@ print(search_k(352,412,0.025))
 print(search_k(413,534,0.021))
 print(search_k(534,708,0.02))
 
-cal_klist = [0.0194, 0.0142, 0.0213, 0.0211, 0.0196] #每段最优k
+cal_klist = [0.0194, 0.0142, 0.0213, 0.0211, 0.0168] #每段最优k
+
+
 #根据距离返回k
 def k_s(s):
     if s <= L1:
@@ -135,6 +151,7 @@ def u_cacl():
         i += 1
     return np.array(T_cacl)
 
+#画算出来的炉温曲线
 painter(u_cacl())
 
 #混沌序列
