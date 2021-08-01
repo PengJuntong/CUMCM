@@ -416,21 +416,3 @@ def painter3(y):
 painter3(prob2)
 
 
-
-
-
-
-
-#混沌序列
-
-def chao(M,a,b):
-    m0 = np.random.rand()
-    m_list = [((b-a)*m0+a)]
-    for i in range(M):
-        m = 4*m0*(1-m0)
-        m_list.append(((b-a)*m+a))
-        m0 = m
-    return m_list
-
-#print(chao(20,75,80))
-
