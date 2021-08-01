@@ -281,67 +281,69 @@ for v in v_search:
 
 
 #p4
-##############
-#def mirror_error(u_list):
-#    max_time = tempre_max(u_list)
-#    i = hightemtime[0]
-#    error = 0
-#    for j in range(i, max_time):
-#        error += (u_list[2*max_time-j]-u_list[j])**2
-#    return error
+#############
+def mirror_error(u_list):
+   max_time = tempre_max(u_list)
+   i = hightemtime[0]
+   error = 0
+   for j in range(i, max_time):
+       error += (u_list[2*max_time-j]-u_list[j])**2
+   return error
 
-#flag_p4 = False
-#S_min = 0
-#S_max = 0
-#error_max = 0
-#error_min = 0
-#for v in v_search:
-#    for t1 in tempre_pre:
-#        for t2 in tempre_stable1:
-#            for t3 in tempre_stable2:
-#                for t4 in tempre_back:
-#                    gy3 = [t1,t2,t3,t4]
-#                    u_list = u_cacl(v,gy3)
-#                    if tempre_judge(u_list):
-#                       S = hightT_area(u_list) 
-#                       error = mirror_error(u_list)
-#                        if flag_p4:                
-#                            if S <= S_min:
-#                                S_min = S
-#                            if S >= S_max:
-#                                S_max = S
-#                            if error <= error_min:
-#                                error_min = error
-#                            if error >= error_max:
-#                                error_max = error
-#                        else:
-#                            S_min = S
-#                            S_max = S
-#                            error_min = error
-#                            error_max = error
-#                            flag_p4 = True
+flag_p4 = False
+S_min = 0
+S_max = 0
+error_max = 0
+error_min = 0
+for v in v_search:
+   for t1 in tempre_pre:
+       for t2 in tempre_stable1:
+           for t3 in tempre_stable2:
+               for t4 in tempre_back:
+                   gy3 = [t1,t2,t3,t4]
+                   u_list = u_cacl(v,gy3)
+                   if tempre_judge(u_list):
+                      S = hightT_area(u_list) 
+                      error = mirror_error(u_list)
+                       if flag_p4:                
+                           if S <= S_min:
+                               S_min = S
+                           if S >= S_max:
+                               S_max = S
+                           if error <= error_min:
+                               error_min = error
+                           if error >= error_max:
+                               error_max = error
+                       else:
+                           S_min = S
+                           S_max = S
+                           error_min = error
+                           error_max = error
+                           flag_p4 = True
 
-#P_best = 0
-#best_answer = [0,0,0,0,0]
-#for v in v_search:
-#    for t1 in tempre_pre:
-#        for t2 in tempre_stable1:
-#            for t3 in tempre_stable2:
-#                for t4 in tempre_back:
-#                    gy = [t1,t2,t3,t4]
-#                    u_list = u_cacl(v,gy)
-#                    if tempre_judge(u_list):
-#                        if flag_p4:
-#                            S = hightT_area(u_list)
-#                            error = mirror_error(u_list)
-#                            P = S/(S_max-S_min) + error/(error_max-error_min)
-#                            if P <= P_best:
-#                                P_best = P
-#                                best_answer = [v,t1,t2,t3,t4]
-#                        else:
-#                            P_best = P
+flag_p4 = False
+P_best = 0
+best_answer = [0,0,0,0,0]
+for v in v_search:
+   for t1 in tempre_pre:
+       for t2 in tempre_stable1:
+           for t3 in tempre_stable2:
+               for t4 in tempre_back:
+                   gy = [t1,t2,t3,t4]
+                   u_list = u_cacl(v,gy)
+                   if tempre_judge(u_list):
+                       if flag_p4:
+                           S = hightT_area(u_list)
+                           error = mirror_error(u_list)
+                           P = S/(S_max-S_min) + error/(error_max-error_min)
+                           if P <= P_best:
+                               P_best = P
+                               best_answer = [v,t1,t2,t3,t4]
+                       else:
+                           P_best = P
+                           flag_p4 = True
 
-#print(best_answer)
+print(best_answer)
 
 
 
