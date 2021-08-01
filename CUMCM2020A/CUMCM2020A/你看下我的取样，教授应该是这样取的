@@ -1,0 +1,356 @@
+import numpy as np
+import xlrd
+from matplotlib import pyplot as plt
+
+data = xlrd.open_workbook('data.xls')
+table = data.sheet_by_name(u'Sheet1')
+
+data_org = np.array(table.col_values(1)[1:])
+time_org = np.array(table.col_values(0)[1:])
+
+Delta_t = 0.5
+result_k = []
+Tair=[]
+
+L0 = 25
+L1 = 30.5*5 + 5*4+25 #193.5
+L2 = 30.5*6 + 5*5+25 #228.0
+L3 = 30.5*7 + 5*6+25  #262.5
+L4 = 30.5*9 + 5*8+25  #339.5
+L5 = 30.5*11 + 5*10+25 #400.5
+#初始的温区设定
+T1,T2,T3,T4 = 175,195,235,255
+###
+##温度场的确定
+###
+#############################################################################################################
+gy1 = [175,195,235,255]
+def T_air(s,T_air_list):
+
+    T1 = T_air_list[0]
+    T2 = T_air_list[1]
+    T3 = T_air_list[2]
+    T4 = T_air_list[3]
+    
+    if s <= L0+18 and s >= L0-15:
+        #return min(4.61*s-22.3,175)
+        return 25+(T1-25)*(s-L0+15)/33.0
+
+    elif s>=L0+18 and s <= L1:
+        return T1
+
+    elif s >= L1 and s<= L1+5:
+        return T1+(T2-T1)*(s-L1)/5.0
+
+    elif s >= L1+5 and s<= L2:
+        return T2
+
+    elif s >= L2 and s<= L2+5:
+        return T2+(T3-T2)*(s-L2)/5.0
+
+    elif s>= L2+5 and s<= L3:
+        return T3
+
+    elif s >= L3 and s<= L3+5:
+        return T3+(T4-T3)*(s-L3)/5.0
+
+    elif s >= L3+5 and s<= L4:
+        return T4
+    
+    elif s >= L4 and s <= L4+50:
+        return T4+(90-T4)*(s-L4)/50.0
+
+    elif s >= L4+50:
+        return 90+(25-90)*(s-L4-50)/250
+
+    else:
+        return 25
+
+#找最优k
+#############################################################################################################
+def search_k(start, end, k_predict):
+    speed = 70/60.0
+    k_best = k_predict
+    flag = False
+
+    for k in np.arange(k_predict - 0.006 , k_predict + 0.008 , 0.0001):
+        T_now = data_org[start]
+        error_tmp = 0
+        for t in range(start, end):
+            T_next = T_now *(1 - k*Delta_t) + k * T_air(time_org[t]*speed,gy1) * Delta_t
+            error_tmp += (T_next-data_org[t+1])**2
+            T_now = T_next
+        if flag:
+            if(error_tmp < error):
+               error = error_tmp
+               k_best = k
+        else: 
+            error = error_tmp
+            flag = True
+
+    return [k_best, error]
+
+k1=search_k(0,291,0.017)
+print(k1)
+k2=search_k(292,351,0.018)
+print(k2)
+k3=search_k(352,412,0.025)
+print(k3)
+k4=search_k(413,534,0.021)
+print(k4)
+k5=search_k(534,708,0.02)
+print(k5)
+kerror=[k1,k2,k3,k4,k5]
+
+cal_klist = [k1[0], k2[0], k3[0], k4[0],k5[0]] #每段最优k
+
+#根据距离返回k
+def k_s(s):
+    if s <= L1:
+        return cal_klist[0]
+    if s >= L1 and s <= L2:
+        return cal_klist[1]
+    if s >= L2 and s <= L3:
+        return cal_klist[2]
+    if s >= L3 and s <= L4:
+        return cal_klist[3]
+    if s >= L4:
+        return cal_klist[4]
+
+
+
+#根据初值生成炉温曲线
+def u_cacl(speed,gy_x):
+    T_cacl = [30.00]
+    i = 0
+    for t in np.arange(19.0,373.0, 0.5):
+        distance = t*speed/60.0
+        k = k_s(distance)
+        T_next = T_cacl[i] *(1-k*Delta_t) + k * T_air(distance,gy_x) * Delta_t
+        T_cacl.append(T_next)
+        i += 1
+    return np.array(T_cacl)
+
+
+#斜率检验函数
+def properrate(y):
+    flag=True
+    for i in range (len(y)-1):
+        rate=(y[i+1]-y[i])*2
+        if abs(rate) > 3:
+            flag=False
+            break
+        else:
+            continue
+    return flag
+
+#峰值温度检验函数
+def tempre_max(y):
+
+    max_i=100
+    max_num = len(y)
+    mid_num = max_num//2
+    min_num = 0
+
+    if y[mid_num-1] >= y[mid_num+1] and y[mid_num] >= y[mid_num+1]:
+        max_num = mid_num
+        mid_num = (mid_num-min_num)//2
+    elif y[mid_num+1] >= y[mid_num] and y[mid_num] >= y[mid_num-1]:
+        min_num = mid_num
+        mid_num = (max_num+mid_num)//2
+    else:
+        max_i = mid_num
+
+    return max_i
+
+
+#高于217的时间检验函数
+def hightemtime(y):
+
+    init_i=0
+    final_i=len(y)-1
+
+    for i in range (len(y)):
+        if y[i]>217:
+            init_i=i
+            break
+        else:
+            continue
+    for i in range(len(y)-1):
+        if y[len(y)-1-i]>217:
+            final_i=i
+            break
+        else :
+            continue
+
+    return [init_i, final_i]
+
+#温度区间持续时间检验函数
+def sptime(y):
+    flag=False
+    init_i=0
+    final_i=len(y)-1
+    for i in range (len(y)):
+        if y[i]>150:
+            init_i=i
+            break
+        else:
+            continue
+    for i in range (init_i,len(y-1)):
+        if y[i]>190:
+            final_i=i
+            break
+        else:
+            continue
+    deltai=final_i-init_i
+    if(deltai>120 and deltai<240):
+        flag =True
+
+    else:flag=False
+
+    return flag
+
+
+
+#p3
+#########################
+
+def chao(M,a,A,b,B,c,C,d,D,e,E):
+    m=[]
+    G=[]
+    for i in range (5):
+        m.append(np.random.rand())
+
+    
+    vector_init=np.array([(A-a)*m[0]+a,(B-b)*m[1]+b,(C-c)*m[2]+c,(D-d)*m[3]+d,(E-e)*m[4]+e])
+    G.append(vector_init)
+
+    for i in range(M):
+        for j in range(5):
+            m[j] = 4*m[j]*(1-m[j])
+
+        
+        G.append([(A-a)*m[0]+a,(B-b)*m[1]+b,(C-c)*m[2]+c,(D-d)*m[3]+d,(E-e)*m[4]+e])
+        
+    return G
+
+def tempre_judge(u_list):
+    if properrate(u_list):
+        if sptime(u_list):
+            max_time = tempre_max(u_list)
+            if u_list[max_time]>=240 and u_list[max_time]<=250:
+                i,j = hightemtime[0],hightemtime[1]
+                if j-i >=80 and j-i <=180:
+                    return True
+    else:
+        return False
+
+
+def highT_area(u_list):
+    max_time = tempre_max(u_list)
+    i = hightemtime[0]
+    area = 0
+    for time in range(i,max_time):
+        area += u_list[time]*Delta_t
+
+    return area-((max_time-i)*u_list[i])
+
+cycletimes = 1000
+#tempre_pre = chao(cycletimes,165,185)
+#tempre_stable1 = chao(cycletimes,185,205)
+#tempre_stable2 = chao(cycletimes,225,245)
+#tempre_back = chao(cycletimes,245,265)
+#v_search = chao(cycletimes,65,100)
+
+test= chao(cycletimes,165,185,185,205,225,245,245,265,65,100)
+print(test)
+
+flag_p3 = False
+S_min = 100000000
+S_max = 0
+best_answer = [0,0,0,0,0]
+
+for vector in test:
+    #print(vector)
+    gy3 = [vector[0],vector[1],vector[2],vector[3]]
+    u_list = u_cacl(vector[4],gy3)
+    if tempre_judge(u_list):
+        S = hightT_area(u_list)
+        print([vector,S])
+        if S <= S_min:
+            S_min = S
+            best_answer = vector                      
+        else:
+            S_min = S
+            
+
+print(best_answer)
+
+
+
+#p4
+##############
+#def mirror_error(u_list):
+#    max_time = tempre_max(u_list)
+#    i = hightemtime[0]
+#    error = 0
+#    for j in range(i, max_time):
+#        error += (u_list[2*max_time-j]-u_list[j])**2
+#    return error
+
+#flag_p4 = False
+#S_min = 0
+#S_max = 0
+#error_max = 0
+#error_min = 0
+#for v in v_search:
+#    for t1 in tempre_pre:
+#        for t2 in tempre_stable1:
+#            for t3 in tempre_stable2:
+#                for t4 in tempre_back:
+#                    gy3 = [t1,t2,t3,t4]
+#                    u_list = u_cacl(v,gy3)
+#                    if tempre_judge(u_list):
+#                       S = hightT_area(u_list) 
+#                       error = mirror_error(u_list)
+#                        if flag_p4:                
+#                            if S <= S_min:
+#                                S_min = S
+#                            if S >= S_max:
+#                                S_max = S
+#                            if error <= error_min:
+#                                error_min = error
+#                            if error >= error_max:
+#                                error_max = error
+#                        else:
+#                            S_min = S
+#                            S_max = S
+#                            error_min = error
+#                            error_max = error
+#                            flag_p4 = True
+
+#P_best = 0
+#best_answer = [0,0,0,0,0]
+#for v in v_search:
+#    for t1 in tempre_pre:
+#        for t2 in tempre_stable1:
+#            for t3 in tempre_stable2:
+#                for t4 in tempre_back:
+#                    gy = [t1,t2,t3,t4]
+#                    u_list = u_cacl(v,gy)
+#                    if tempre_judge(u_list):
+#                        if flag_p4:
+#                            S = hightT_area(u_list)
+#                            error = mirror_error(u_list)
+#                            P = S/(S_max-S_min) + error/(error_max-error_min)
+#                            if P <= P_best:
+#                                P_best = P
+#                                best_answer = [v,t1,t2,t3,t4]
+#                        else:
+#                            P_best = P
+
+#print(best_answer)
+
+
+
+
