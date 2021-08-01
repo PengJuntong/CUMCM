@@ -174,7 +174,7 @@ def u_cacl():
 #画算出来的炉温曲线
 #画图函数，横坐标距离
 def painter1(y):
-    #plt.figure()
+    plt.figure()
     plt.rcParams['font.family']=['Microsoft Yahei']
     plt.title("生成炉温曲线与原始炉温曲线的比较")
     plt.xlabel("时间(s)")
@@ -182,17 +182,18 @@ def painter1(y):
     plt.plot(time_org,y)
     plt.plot(time_org,data_org)
     plt.savefig('..\..\生成炉温曲线与原始炉温曲线的比较.png')
-    plt.show()
+    #plt.show()
 painter1(u_cacl())
 
 
 
-#更新温区温度设置,以下两幅图为问题1的答案
+#更新温区温度设置和速度设置,以下两幅图为问题1的答案
 T1,T2,T3,T4=182,203,237,254
+speed=78/60.0
 
 prob1=u_cacl()
 def painter2(y):
-    
+    plt.figure()
     plt.rcParams['font.family']=['Microsoft Yahei']
     plt.title("新炉温曲线与原始炉温曲线的比较")
     plt.xlabel("时间(s)")
@@ -200,12 +201,12 @@ def painter2(y):
     plt.plot(time_org,y)
     plt.plot(time_org,data_org)
     plt.savefig('..\..\新炉温曲线与原始炉温曲线的比较.png')
-    plt.show()
+    #plt.show()
   
 
 
 def painter3(y):
-    
+    plt.figure()
     plt.rcParams['font.family']=['Microsoft Yahei']
     plt.title("新炉温曲线")
     plt.xlabel("时间(s)")
@@ -213,10 +214,13 @@ def painter3(y):
     plt.plot(time_org,y)
   
     plt.savefig('..\..\新炉温曲线.png')
-    plt.show()
+    #plt.show()
 
 painter2(prob1)
 painter3(prob1)
+ans=[time_org,prob1]
+ans=np.transpose(ans)
+np.savetxt('..\..\prob1.csv',ans, delimiter = ',')
 #混沌序列
 def chao(M,a,b):
     m0 = np.random.rand()
