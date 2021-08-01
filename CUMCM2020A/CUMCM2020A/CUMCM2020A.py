@@ -267,9 +267,9 @@ def hightemtime(y):
             break
         else:
             continue
-    for i in range(len(y)-1):
-        if y[len(y)-1-i]>217:
-            final_i=i
+    for i in range(len(y)):
+        if y[len(y)-i-1]>217:
+            final_i=len(y)-i
             break
         else :
             continue
@@ -279,7 +279,7 @@ def hightemtime(y):
 
     else:flag=False
 
-    return flag
+    return [flag,deltai]
 
 #温度区间持续时间检验函数
 def sptime(y):
@@ -339,6 +339,8 @@ def recurf1(x):
         return recurf1(x)
 def recurf2(x):
     global step
+    global upperbound
+    if properrate(u_cacl2(upperbound)): return upperbound
     if step<pow(0.1,5):
         return x
 
@@ -352,6 +354,8 @@ def recurf2(x):
         return recurf2(x)
 def recurf3(x):
     global step
+    global upperbound
+    if hightemtime(u_cacl2(upperbound)): return upperbound
     if step<pow(0.1,5):
         return x
 
@@ -365,6 +369,8 @@ def recurf3(x):
         return recurf3(x)
 def recurf4(x):
     global step
+    global upperbound
+    if sptime(u_cacl2(upperbound)): return upperbound
     if step<pow(0.1,5):
         return x
 
@@ -377,21 +383,38 @@ def recurf4(x):
         step=step/2.0
         return recurf4(x)
 
-ans1=recurf1(upperbound)
+upperbound=recurf1(upperbound)
 step=0.1
-print(ans1)
-ans2=recurf2(upperbound)
-print(ans2)
-step=0.1
-ans3=recurf3(upperbound)
-step=0.1
-print(ans3)
-ans4=recurf4(upperbound)
-print(ans4)
 
-answer = min(ans1,ans2,ans3,ans4)
-print (answer)
-    
+upperbound=recurf2(upperbound)
+
+step=0.1
+upperbound=recurf3(upperbound)
+step=0.1
+
+upperbound=recurf4(upperbound)
+
+
+print(upperbound)
+
+prob2=u_cacl2(upperbound)
+
+
+
+def painter3(y):
+    plt.figure()
+    plt.rcParams['font.family']=['Microsoft Yahei']
+    plt.title("问题2炉温曲线")
+    plt.xlabel("时间(s)")
+    plt.ylabel("温度(℃)")
+    plt.plot(time_org,y)
+  
+    plt.savefig('..\..\prob2plot.png')
+    #plt.show()
+
+
+painter3(prob2)
+
 
 
 
