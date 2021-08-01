@@ -234,6 +234,24 @@ np.savetxt('..\..\prob1.csv',ans, delimiter = ',')
 #更新小温区温度
 T1,T2,T3,T4=182,203,237,254
 
+#斜率检验函数
+def properrate(y):
+    flag=True
+    for i in range (len(y)-1):
+        rate=(y[i+1]-y[i])*2
+        if abs(rate) > 3:
+            flag=False
+            break
+        else:
+            continue
+    return flag
+
+#峰值温度检验函数
+def propermax(y):
+
+
+
+
 
 #混沌序列
 def chao(M,a,b):
