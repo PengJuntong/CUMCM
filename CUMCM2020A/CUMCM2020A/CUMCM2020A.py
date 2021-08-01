@@ -248,12 +248,26 @@ def properrate(y):
 
 #峰值温度检验函数
 def propermax(y):
+    flag=False
+    max=0
+    for i in range (len(y)-1):
+        if y[i]>max:
+            max=y[i]
+        else:
+            continue
+    if max > 240 and max<250:
+        flag=True
+    else:
+        flag=False
+    return flag
+
 
 
 
 
 
 #混沌序列
+
 def chao(M,a,b):
     m0 = np.random.rand()
     m_list = [((b-a)*m0+a)]
