@@ -67,7 +67,7 @@ Tair=[]
 #    k = -(data_org[i+1]-data_org[i])/(Delta_t * (data_org[i] - T_air(distance)))
 #    Tair.append(T_air(distance))
 #    result_k.append(k)
-#    print('%.4f'%k,'%.2f'%distance, time_org[i], T_air(distance))
+#    #print('%.4f'%k,'%.2f'%distance, time_org[i], T_air(distance))
 #result_k.append(0)
 #fig = plt.figure()
 #ax = fig.add_subplot(111)
