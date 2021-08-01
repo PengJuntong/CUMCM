@@ -21,10 +21,10 @@ L5 = 30.5*11 + 5*10+25 #400.5
 def T_air(s):
 
     T1,T2,T3,T4 = 175,195,235,255
-    if s <= L0+25 and s >= L0-5:
-        return min(4.61*s-22.3,175)
-        #return 25+(T1-25)*(s-L0+5)/10.0
-    elif s>=L0+25 and s <= L1:
+    if s <= L0+18 and s >= L0-15:
+        #return min(4.61*s-22.3,175)
+        return 25+(T1-25)*(s-L0+15)/33.0
+    elif s>=L0+18 and s <= L1:
         return T1
     elif s >= L1 and s<= L1+5:
         return T1+(T2-T1)*(s-L1)/5.0
@@ -41,13 +41,11 @@ def T_air(s):
 
     elif s >= L3+5 and s<= L4:
         return T4
-    elif s >= L4 and s <= L5+25:
-        return T4+(25-T4)*(s-L4)/(L5+25-L4)
+    elif s >= L4 and s <= L4+90:
+        return T4+(25-T4)*(s-L4)/90.0
     else:
         return 25
 
-#346 241
-#339.5 255
 
 Delta_t = 0.5
 speed = 70/60.0
@@ -79,7 +77,7 @@ painter(Tair)
 #0.02 | 0.018 | 0.025 | 0.021 | 0.01
 #4 291 351 412 534
 
-
+#找最优k
 def search_k(start, end, k_predict):
     k_best = k_predict
     flag = False
@@ -107,23 +105,25 @@ print(search_k(352,412,0.025))
 print(search_k(413,534,0.021))
 print(search_k(534,708,0.02))
 
-cal_klist = [0.0194, 0.0142, 0.0213, 0.0211, 0.0220]
+cal_klist = [0.0194, 0.0142, 0.0213, 0.0211, 0.0196] #每段最优k
+#根据距离返回k
 def k_s(s):
     if s <= L1:
         return cal_klist[0]
-    if s >= L1 and s <= L1+5:
-        return cal_klist[0]+(cal_klist[1]-cal_klist[0])*(s-L1)/5.0
-    if s >= L1+5 and s <= L2:
+    #if s >= L1 and s <= L1+5:
+    #    return cal_klist[0]+(cal_klist[1]-cal_klist[0])*(s-L1)/5.0
+    if s >= L1 and s <= L2:
         return cal_klist[1]
-    if s>=L2 and s<=L2+5:
-        return cal_klist[1]+(cal_klist[2]-cal_klist[1])*(s-L2)/5.0
-    if s >= L2+5 and s <= L3:
+    #if s>=L2 and s<=L2+5:
+    #    return cal_klist[1]+(cal_klist[2]-cal_klist[1])*(s-L2)/5.0
+    if s >= L2 and s <= L3:
         return cal_klist[2]
     if s >= L3 and s <= L4:
         return cal_klist[3]
     if s >= L4:
         return cal_klist[4]
 
+#根据初值生成炉温曲线
 def u_cacl():
     T_cacl = [30.03]
     i = 0
@@ -137,6 +137,7 @@ def u_cacl():
 
 painter(u_cacl())
 
+#混沌序列
 def chao(M,a,b):
     m0 = np.random.rand()
     m_list = [((b-a)*m0+a)]
