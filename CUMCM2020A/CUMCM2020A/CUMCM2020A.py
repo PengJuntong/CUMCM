@@ -15,37 +15,39 @@ L0 = 25
 L1 = 30.5*5 + 5*4+25 #193.5
 L2 = 30.5*6 + 5*5+25 #228.0
 L3 = 30.5*7 + 5*6+25  #262.5
-L4 = 30.5*9 + 5*8+25  #331.5
+L4 = 30.5*9 + 5*8+25  #339.5
 L5 = 30.5*11 + 5*10+25 #400.5
 
 def T_air(s):
 
     T1,T2,T3,T4 = 175,195,235,255
     if s <= L0+25 and s >= L0-5:
-        return max(4.61*s-22.3,175)
-    elif s>=L0+25 and s <= L1-5:
+        return min(4.61*s-22.3,175)
+        #return 25+(T1-25)*(s-L0+5)/10.0
+    elif s>=L0+25 and s <= L1:
         return T1
-    elif s >= L1-5 and s<= L1+10:
-        return T1+(T2-T1)*(s-L1+5)/15.0
+    elif s >= L1 and s<= L1+5:
+        return T1+(T2-T1)*(s-L1)/5.0
 
-    elif s >= L1+10 and s<= L2-5:
+    elif s >= L1+5 and s<= L2:
         return T2
-    elif s >= L2-5 and s<= L2+10:
-        return T2+(T3-T2)*(s-L2+5)/15.0
+    elif s >= L2 and s<= L2+5:
+        return T2+(T3-T2)*(s-L2)/5.0
 
-    elif s>= L2+10 and s<= L3-5:
+    elif s>= L2+5 and s<= L3:
         return T3
-    elif s >= L3-5 and s<= L3+10:
-        return T3+(T4-T3)*(s-L3+5)/15.0
+    elif s >= L3 and s<= L3+5:
+        return T3+(T4-T3)*(s-L3)/5.0
 
-    elif s >= L3+10 and s<= L4-5:
+    elif s >= L3+5 and s<= L4:
         return T4
-    elif s >= L4-5 and s <= L4+10:
-        return T4+(25-T4)*(s-L4+5)/15.0
+    elif s >= L4 and s <= L5+25:
+        return T4+(25-T4)*(s-L4)/(L5+25-L4)
     else:
         return 25
 
-
+#346 241
+#339.5 255
 
 Delta_t = 0.5
 speed = 70/60.0
@@ -54,18 +56,13 @@ Tair=[]
 for i in range(len(data_org)-1):
     distance = speed * time_org[i]
     k = -(data_org[i+1]-data_org[i])/(Delta_t * (data_org[i] - T_air(distance)))
-    if (i<=4):
-        tair_calc = data_org[i] + (data_org[i+1]-data_org[i])/(0.018*Delta_t)
-        print([distance,tair_calc,T_air(distance)])
-        Tair.append(tair_calc)
-    else:
-        Tair.append(T_air(distance))
+    Tair.append(T_air(distance))
     result_k.append(k)
     #print('%.4f'%k,'%.2f'%distance, time_org[i], T_air(distance))
 
 
 #result_k.append(0)
-#Tair.append(25)
+Tair.append(25)
 #fig = plt.figure()
 #ax = fig.add_subplot(111)
 #ax.set(ylim = [-0.03,0.03])
@@ -78,7 +75,7 @@ def painter(y):
     plt.plot(time_org*speed,data_org)
     plt.show()
 
-
+painter(Tair)
 #0.02 | 0.018 | 0.025 | 0.021 | 0.01
 #4 291 351 412 534
 
@@ -87,7 +84,7 @@ def search_k(start, end, k_predict):
     k_best = k_predict
     flag = False
 
-    for k in np.arange(k_predict - 0.006 , k_predict + 0.006 , 0.0001):
+    for k in np.arange(k_predict - 0.006 , k_predict + 0.008 , 0.0001):
         T_now = data_org[start]
         error_tmp = 0
         for t in range(start, end):
@@ -108,15 +105,19 @@ print(search_k(0,291,0.017))
 print(search_k(292,351,0.018))
 print(search_k(352,412,0.025))
 print(search_k(413,534,0.021))
-print(search_k(534,708,0.01))
+print(search_k(534,708,0.02))
 
-cal_klist = [0.185, 0.142, 0.213, 0.211, 0.0061]
+cal_klist = [0.0194, 0.0142, 0.0213, 0.0211, 0.0220]
 def k_s(s):
     if s <= L1:
         return cal_klist[0]
-    if s >= L1 and s <= L2:
+    if s >= L1 and s <= L1+5:
+        return cal_klist[0]+(cal_klist[1]-cal_klist[0])*(s-L1)/5.0
+    if s >= L1+5 and s <= L2:
         return cal_klist[1]
-    if s >= L2 and s <= L3:
+    if s>=L2 and s<=L2+5:
+        return cal_klist[1]+(cal_klist[2]-cal_klist[1])*(s-L2)/5.0
+    if s >= L2+5 and s <= L3:
         return cal_klist[2]
     if s >= L3 and s <= L4:
         return cal_klist[3]
