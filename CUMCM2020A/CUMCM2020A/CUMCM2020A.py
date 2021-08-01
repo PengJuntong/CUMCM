@@ -236,7 +236,7 @@ T1,T2,T3,T4=182,203,237,254
 #斜率检验函数
 def properrate(y):
     flag=True
-    for i in range (len(y)):
+    for i in range (len(y)-1):
         rate=(y[i+1]-y[i])*2
         if abs(rate) > 3:
             flag=False
@@ -248,13 +248,9 @@ def properrate(y):
 #峰值温度检验函数
 def propermax(y):
     flag=False
-    max=0
-    for i in range (len(y)):
-        if y[i]>max:
-            max=y[i]
-        else:
-            continue
-    if max > 240 and max<250:
+    temp=max(y)
+    
+    if temp > 240 and temp<250:
         flag=True
     else:
         flag=False
@@ -309,8 +305,92 @@ def sptime(y):
     else:flag=False
 
     return flag
+#递归用生成函数
+def u_cacl2(v):
+    T_cacl = [30.00]
+    i = 0
+    for t in np.arange(19.0,373.0, 0.5):
+        distance = t*v
+        k = k_s(distance)
+        T_next = T_cacl[i] *(1-k*Delta_t) + k * T_air(distance) * Delta_t
+        T_cacl.append(T_next)
+        i += 1
+    return np.array(T_cacl)
 
+lowerbound = 0.5
+upperbound = 4
+ 
+step=0.1
+speed=upperbound
 
+#上界1
+def recurf1(x):
+    global step
+    if step<pow(0.1,5):
+        return x
+
+    temp=u_cacl2(x)
+    if not propermax(temp):
+        x=x-step
+        return recurf1(x)
+    if propermax(temp):
+        x=x+step
+        step=step/2.0
+        return recurf1(x)
+def recurf2(x):
+    global step
+    if step<pow(0.1,5):
+        return x
+
+    temp=u_cacl2(x)
+    if not properrate(temp):
+        x=x-step
+        return recurf2(x)
+    if properrate(temp):
+        x=x+step
+        step=step/2.0
+        return recurf2(x)
+def recurf3(x):
+    global step
+    if step<pow(0.1,5):
+        return x
+
+    temp=u_cacl2(x)
+    if not hightemtime(temp):
+        x=x-step
+        return recurf3(x)
+    if hightemtime(temp):
+        x=x+step
+        step=step/2.0
+        return recurf3(x)
+def recurf4(x):
+    global step
+    if step<pow(0.1,5):
+        return x
+
+    temp=u_cacl2(x)
+    if not sptime(temp):
+        x=x-step
+        return recurf4(x)
+    if sptime(temp):
+        x=x+step
+        step=step/2.0
+        return recurf4(x)
+
+ans1=recurf1(upperbound)
+step=0.1
+print(ans1)
+ans2=recurf2(upperbound)
+print(ans2)
+step=0.1
+ans3=recurf3(upperbound)
+step=0.1
+print(ans3)
+ans4=recurf4(upperbound)
+print(ans4)
+
+answer = min(ans1,ans2,ans3,ans4)
+print (answer)
     
 
 
