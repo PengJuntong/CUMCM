@@ -134,7 +134,7 @@ cal_klist = [k1[0], k2[0], k3[0], k4[0],k5[0]] #每段最优k
 data_df=pd.DataFrame(kerror)
 data_df.columns =["k","error"]
 data_df.index = ["k1","k2","k3","k4","k5"]
-writer = pd.ExcelWriter('klist.xls')  
+writer = pd.ExcelWriter('..\..\klist.xls')  
 data_df.to_excel(writer,float_format='%.7f')  
 writer.save()
 
@@ -181,7 +181,7 @@ def painter1(y):
     plt.ylabel("温度(℃)")
     plt.plot(time_org,y)
     plt.plot(time_org,data_org)
-    plt.savefig('生成炉温曲线与原始炉温曲线的比较.png')
+    plt.savefig('..\..\生成炉温曲线与原始炉温曲线的比较.png')
     plt.show()
 painter1(u_cacl())
 
@@ -199,7 +199,7 @@ def painter2(y):
     plt.ylabel("温度(℃)")
     plt.plot(time_org,y)
     plt.plot(time_org,data_org)
-    plt.savefig('新炉温曲线与原始炉温曲线的比较.png')
+    plt.savefig('..\..\新炉温曲线与原始炉温曲线的比较.png')
     plt.show()
   
 
@@ -212,7 +212,7 @@ def painter3(y):
     plt.ylabel("温度(℃)")
     plt.plot(time_org,y)
   
-    plt.savefig('新炉温曲线.png')
+    plt.savefig('..\..\新炉温曲线.png')
     plt.show()
 
 painter2(prob1)
