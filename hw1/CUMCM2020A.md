@@ -181,16 +181,40 @@ $$
     
     
 ### 4.4可视化
+<br>
     <div align='center'>
     <img src=2.png>
+    <br>
     问题一中要求计算的炉温曲线
     </div>
+    <br>
 
+<div align='center'>
+<br>
+<img src=4.png>
+问题一中生成炉温曲线与原始炉温曲线的比较
+</div>
+<br>
+
+<div align='center'>
+<br>
+<img src=5.png>
+新炉温曲线
+</div>
+<br>
+
+<div align='center'>
+<br>
+<img src=6.png>
+新炉温曲线与原始炉温曲线的比较
+</div>
+<br>
 ## 5.对于模型优劣的分析
 
 ### 5.1模型的优势
 1.牛顿冷却定律相较于热传导方程更加简便易懂
 2.不需要过多的边界条件计算，减少计算机运算时间
+
 
 
 ### 5.2模型的不足
@@ -199,8 +223,6 @@ $$
 
 ## 6.可以继续讨论的问题
 1.可以考虑热辐射效应对焊接材料温度的影响
-2.
-
 
 ## 7.参考文献
 [1]沈继红 蔡志杰 李晓乐.数学建模及其应用Mathematical Modeling and Its Applications第10卷 第1期 炉温曲线的数学模型及求解 2021.3.
