@@ -172,6 +172,16 @@ title: CUMCM2020A
 
 ### 4.3实验结果
 - 问题1：
+    预先计算得到的k值如下：
+    <div align='center'>
+    k1	0.0194
+
+    k2	0.0142
+    k3	0.0213
+    k4	0.0211
+    k5	0.0168
+    </div>
+
     <div align='center'>
     <img src=5.png>
     问题一中要求计算的炉温曲线
