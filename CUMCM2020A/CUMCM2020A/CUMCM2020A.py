@@ -120,15 +120,15 @@ def search_k(start, end, k_predict):
     return [k_best, error]
 
 k1=search_k(0,291,0.017)
-print(k1)
+#print(k1)
 k2=search_k(292,351,0.018)
-print(k2)
+#print(k2)
 k3=search_k(352,412,0.025)
-print(k3)
+#print(k3)
 k4=search_k(413,534,0.021)
-print(k4)
+#print(k4)
 k5=search_k(534,708,0.02)
-print(k5)
+#print(k5)
 kerror=[k1,k2,k3,k4,k5]
 cal_klist = [k1[0], k2[0], k3[0], k4[0],k5[0]] #每段最优k
 data_df=pd.DataFrame(kerror)
@@ -394,9 +394,9 @@ step=0.1
 
 upperbound=recurf4(upperbound)
 
-
+print("问题2中的速度最大值为：")
 print(upperbound)
-
+np.savetxt("prob2.csv",[upperbound], delimiter = ',')
 prob2=u_cacl2(upperbound)
 
 
