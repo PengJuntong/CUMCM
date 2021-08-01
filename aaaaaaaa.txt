@@ -1,3 +1,33 @@
+import numpy as np
+import xlrd
+from matplotlib import pyplot as plt
+import math
+import matplotlib
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+data = xlrd.open_workbook('data.xls')
+table = data.sheet_by_name(u'Sheet1')
+
+data_org = np.array(table.col_values(1)[1:])
+time_org = np.array(table.col_values(0)[1:])
+
+Delta_t = 0.5
+result_k = []
+Tair=[]
+
+L0 = 25
+L1 = 30.5*5 + 5*4+25 #193.5
+L2 = 30.5*6 + 5*5+25 #228.0
+L3 = 30.5*7 + 5*6+25  #262.5
+L4 = 30.5*9 + 5*8+25  #339.5
+L5 = 30.5*11 + 5*10+25 #400.5
+#初始的温区设定
+T1,T2,T3,T4 = 175,195,235,255
+###
+##温度场的确定
+###
+#############################################################################################################
 gy1 = [175,195,235,255]
 def T_air(s,T_air_list):
 
@@ -48,7 +78,7 @@ def T_air(s,T_air_list):
 
 ###
 ###
-#############################################################################################################
+###############################################################
 
 
 #温度场的合理性检验
@@ -74,6 +104,7 @@ def T_air(s,T_air_list):
 #找最优k
 #############################################################################################################
 def search_k(start, end, k_predict):
+    speed = 70/60.0
     k_best = k_predict
     flag = False
 
@@ -107,12 +138,12 @@ print(k5)
 kerror=[k1,k2,k3,k4,k5]
 
 cal_klist = [k1[0], k2[0], k3[0], k4[0],k5[0]] #每段最优k
-data_df=pd.DataFrame(kerror)
-data_df.columns =["k","error"]
-data_df.index = ["k1","k2","k3","k4","k5"]
-writer = pd.ExcelWriter('..\..\klist.xls')  
-data_df.to_excel(writer,float_format='%.7f')  
-writer.save()
+#data_df=pd.DataFrame(kerror)
+#data_df.columns =["k","error"]
+#data_df.index = ["k1","k2","k3","k4","k5"]
+#writer = pd.ExcelWriter('..\..\klist.xls')  
+#data_df.to_excel(writer,float_format='%.7f')  
+#writer.save()
 
 
 #根据距离返回k
@@ -159,7 +190,8 @@ def painter1(y):
     plt.plot(time_org,data_org)
     plt.savefig('..\..\生成炉温曲线与原始炉温曲线的比较.png')
     #plt.show()
-painter1(u_cacl(70/60.0,gy1))
+
+#painter1(u_cacl(70/60.0,gy1))
 
 
 
@@ -191,11 +223,11 @@ def painter3(y):
     plt.savefig('..\..\新炉温曲线.png')
     #plt.show()
 
-painter2(prob1)
-painter3(prob1)
-ans=[time_org,prob1]
-ans=np.transpose(ans)
-np.savetxt("result.csv",ans, delimiter = ',')
+#painter2(prob1)
+#painter3(prob1)
+#ans=[time_org,prob1]
+#ans=np.transpose(ans)
+#np.savetxt("result.csv",ans, delimiter = ',')
 
 
 
@@ -286,4 +318,132 @@ def sptime(y):
 
     return flag
 
+
+
+#p3
+#########################
+
+def chao(M,a,b):
+
+    m0 = np.random.rand()
+    m_list = [((b-a)*m0+a)]
+    for i in range(M):
+        m = 4*m0*(1-m0)
+        m_list.append(((b-a)*m+a))
+        m0 = m
+    return m_list
+
+def tempre_judge(u_list):
+    if properrate(u_list):
+        if sptime(u_list):
+            max_time = tempre_max(u_list)
+            if u_list[max_time]>=240 and u_list[max_time]<=250:
+                i,j = hightemtime[0],hightemtime[1]
+                if j-i >=40 and j-i <=90:
+                    return True
+    else:
+        return False
+
+
+def highT_area(u_list):
+    max_time = tempre_max(u_list)
+    i = hightemtime[0]
+    area = 0
+    for time in range(i,max_time):
+        area += u_list[time]*Delta_t
+
+    return area-((max_time-i)*u_list[i])
+
+cycletimes = 10
+tempre_pre = chao(cycletimes,165,185)
+tempre_stable1 = chao(cycletimes,185,205)
+tempre_stable2 = chao(cycletimes,225,245)
+tempre_back = chao(cycletimes,245,265)
+v_search = chao(cycletimes,65,100)
+
+flag_p3 = False
+S_min = 0
+S_max = 0
+best_answer = [0,0,0,0,0]
+
+for v in v_search:
+    for t1 in tempre_pre:
+        for t2 in tempre_stable1:
+            for t3 in tempre_stable2:
+                for t4 in tempre_back:
+                    gy3 = [t1,t2,t3,t4]
+                    u_list = u_cacl(v,gy3)
+                    if tempre_judge(u_list):
+                        if flag_p3:
+                            S = hightT_area(u_list)
+                            if S <= S_min:
+                                S_min = S
+                                best_answer = [v,t1,t2,t3,t4]
+                        else:
+                            S_min = S
+
+print(best_answer)
+
+def mirror_error(u_list):
+    max_time = tempre_max(u_list)
+    i = hightemtime[0]
+    error = 0
+    for j in range(i, max_time):
+        error += (u_list[2*max_time-j]-u_list[j])**2
+    return error
+
+
+#p4
+##############
+flag_p4 = False
+S_min = 0
+S_max = 0
+error_max = 0
+error_min = 0
+for v in v_search:
+    for t1 in tempre_pre:
+        for t2 in tempre_stable1:
+            for t3 in tempre_stable2:
+                for t4 in tempre_back:
+                    gy3 = [t1,t2,t3,t4]
+                    u_list = u_cacl(v,gy3)
+                    if tempre_judge(u_list):
+                        if flag_p4:
+                            S = hightT_area(u_list)
+                            error = mirror_error(u_list)
+                            if S <= S_min:
+                                S_min = S
+                            if S >= S_max:
+                                S_max = S
+                            if error <= error_min:
+                                error_min = error
+                            if error >= error_max:
+                                error_max = error
+                        else:
+                            S_min = S
+                            S_max = S
+                            error_min = error
+                            error_max = error
+
+P_best = 0
+best_answer = [0,0,0,0,0]
+for v in v_search:
+    for t1 in tempre_pre:
+        for t2 in tempre_stable1:
+            for t3 in tempre_stable2:
+                for t4 in tempre_back:
+                    gy = [t1,t2,t3,t4]
+                    u_list = u_cacl(v,gy)
+                    if tempre_judge(u_list):
+                        if flag_p4:
+                            S = hightT_area(u_list)
+                            error = mirror_error(u_list)
+                            P = S/(S_max-S_min) + error/(error_max-error_min)
+                            if P <= P_best:
+                                P_best = P
+                                best_answer = [v,t1,t2,t3,t4]
+                        else:
+                            P_best = P
+
+print(best_answer)
 
