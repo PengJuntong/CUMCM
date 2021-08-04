@@ -1,89 +1,13 @@
+
+
 import numpy as np
 import xlrd
 from matplotlib import pyplot as plt
 import matplotlib
 import pandas as pd
 from process import T_air, k_s
-
-data = xlrd.open_workbook('data.xls')
-table = data.sheet_by_name(u'Sheet1')
-
-data_org = np.array(table.col_values(1)[1:])
-time_org = np.array(table.col_values(0)[1:])
-Delta_t = 0.5
-
-#初始的温区设定
-gy1 = [175,195,235,255]
-
-#找最优k
-def search_k(start, end, k_predict):
-    speed = 70/60.0
-    k_best = k_predict
-    flag = False
-
-    for k in np.arange(k_predict - 0.006 , k_predict + 0.008 , 0.0001):
-        T_now = data_org[start]
-        error_tmp = 0
-        for t in range(start, end):
-            T_next = T_now *(1 - k*Delta_t) + k * T_air(time_org[t]*speed,gy1) * Delta_t
-            error_tmp += (T_next - data_org[t+1])**2
-            T_now = T_next
-        if flag:
-            if(error_tmp < error):
-               error = error_tmp
-               k_best = k
-        else: 
-            error = error_tmp
-            flag = True
-
-    return [k_best, error]
-
-k1 = search_k(0,291,0.017)
-k2 = search_k(292,351,0.018)
-k3 = search_k(352,412,0.025)
-k4 = search_k(413,534,0.021)
-k5 = search_k(534,708,0.02)
-kerror = [k1,k2,k3,k4,k5]
-#print(kerror)
-
-cal_klist = [k1[0], k2[0], k3[0], k4[0], k5[0]] #每段最优k
-
-
-#写入k值及误差
-#data_df=pd.DataFrame(kerror)
-#data_df.columns =["k","error"]
-#data_df.index = ["k1","k2","k3","k4","k5"]
-#writer = pd.ExcelWriter('..\..\klist.xls')  
-#data_df.to_excel(writer,float_format='%.7f')  
-#writer.save()
-
-#根据初值生成炉温曲线
-def u_cacl(speed,gy_x):
-    T_cacl = [30.00]
-    i = 0
-    for t in np.arange(19.0,373.0, 0.5):
-        distance = t*speed
-        k = k_s(distance)
-        T_next = T_cacl[i] *(1-k*Delta_t) + k * T_air(distance,gy_x) * Delta_t
-        T_cacl.append(T_next)
-        i += 1
-    return T_cacl
-
-#画图
-def painter(y, title, contrast):
-    plt.figure()
-    plt.rcParams['font.family']=['Microsoft Yahei']
-    plt.title("%s" %title)
-    plt.xlabel("时间(s)")
-    plt.ylabel("温度(℃)")
-    plt.plot(time_org,y)
-    if contrast:
-        plt.plot(time_org,data_org)
-    #plt.savefig('..\..\%s.png' %title)
-    #plt.show()
-
-painter(u_cacl(70/60.0, gy1),
-        '生成炉温曲线与原始炉温曲线的比较',True)
+import time
+import openpyxl
 
 gy1_1 = [173,198,230,257]
 
@@ -143,8 +67,12 @@ def highT_time(y):
             break
         else :
             continue
+    deltai=final_i-init_i
+    if deltai>80 and deltai<180:
+        flag=True
+    else:flag=False
 
-    return [init_i, final_i]
+    return [init_i, final_i,flag]
 
 
 #高于217的时间检验函数
@@ -197,7 +125,7 @@ def recurf1(x):
     if step<pow(0.1,5):
         return x
 
-    temp=u_cacl2(x)
+    temp=u_cacl(x,gy2)
     if not propermax(temp):
         x=x-step
         return recurf1(x)
@@ -209,7 +137,7 @@ def recurf1(x):
 def recurf(x, algorithm):
     global step
     global upperbound
-    if algorithm(u_cacl2(upperbound)): return upperbound
+    if algorithm(u_cacl(upperbound,gy2)): return upperbound
     if step<pow(0.1,5):
         return x
 
@@ -284,81 +212,97 @@ def mirror_error(u_list):
     return error
 
 
-cycletimes = 10000
+cycletimes = 3000
+counter = 62
+while True :
+    tempre_pre = chao(cycletimes,165,185)
+    tempre_stable1 = chao(cycletimes,185,205)
+    tempre_stable2 = chao(cycletimes,225,245)
+    tempre_back = chao(cycletimes,245,265)
+    v_search = chao(cycletimes,65/60.0,100/60.0)
+    P_mark = [False]*cycletimes #标记该设定是否满足制程界限
 
-tempre_pre = chao(cycletimes,165,185)
-tempre_stable1 = chao(cycletimes,185,205)
-tempre_stable2 = chao(cycletimes,225,245)
-tempre_back = chao(cycletimes,245,265)
-v_search = chao(cycletimes,65/60.0,100/60.0)
-P_mark = [False]*cycletimes #标记该设定是否满足制程界限
+    #将5个混沌序列并排后转置，变成一行一组设定
+    data_list = np.array([v_search, P_mark, tempre_pre, tempre_stable1, tempre_stable2, tempre_back])
+    data_list = data_list.transpose()
 
-#将5个混沌序列并排后转置，变成一行一组设定
-data_list = np.array([v_search, P_mark, tempre_pre, tempre_stable1, tempre_stable2, tempre_back])
-data_list = data_list.transpose()
+    flag = False
+    S_min = 0
+    S_max = 0
+    error_max = 0
+    error_min = 0
+    answer_p3 = np.zeros(5)
 
-flag = False
-S_min = 0
-S_max = 0
-error_max = 0
-error_min = 0
-answer_p3 = np.zeros(5)
-
-#遍历求最小面积，顺便求最大面积和误差
-for u in data_list:
-    u_list = u_cacl(u[0],u[2:])
-
-    if goodSetting(u_list):
-        u[1] = True #将符合制程界限的设定标记变成True
-
-        S = highT_area(u_list) 
-        error = mirror_error(u_list)
-        print(S,error)
-
-        if flag:                
-            if S <= S_min:
-                S_min = S
-                answer_p3 = u
-            if S >= S_max:
-                S_max = S
-            if error <= error_min:
-                error_min = error
-            if error >= error_max:
-                error_max = error
-        else:
-            S_min = S
-            S_max = S
-            error_min = error
-            error_max = error
-            flag = True
-
-flag = False
-P_best = 0
-answer_p4 = np.zeros(5)
-
-#遍历求综合指标
-for u in data_list:
-    if u[1]:#只对标记为True的遍历，不再重复调用判断函数
-
+    #遍历求最小面积，顺便求最大面积和误差
+    for u in data_list:
         u_list = u_cacl(u[0],u[2:])
-        S = highT_area(u_list) 
-        error = mirror_error(u_list)
-        P = (S-S_min)/(S_max-S_min) + (error-error_min)/(error_max-error_min)
-        print(P)
 
-        if flag:                
-            if P <= P_best:
+        if goodSetting(u_list):
+            u[1] = True #将符合制程界限的设定标记变成True
+
+            S = highT_area(u_list) 
+            error = mirror_error(u_list)
+            print(S,error)
+
+            if flag:                
+                if S <= S_min:
+                    S_min = S
+                    answer_p3 = u
+                if S >= S_max:
+                    S_max = S
+                if error <= error_min:
+                    error_min = error
+                if error >= error_max:
+                    error_max = error
+            else:
+                S_min = S
+                S_max = S
+                error_min = error
+                error_max = error
+                flag = True
+
+    flag = False
+    P_best = 0
+    answer_p4 = np.zeros(5)
+    
+
+    #遍历求综合指标
+    for u in data_list:
+        if u[1]:#只对标记为True的遍历，不再重复调用判断函数
+
+            u_list = u_cacl(u[0],u[2:])
+            S = highT_area(u_list) 
+            error = mirror_error(u_list)
+            P = (S-S_min)/(S_max-S_min) + (error-error_min)/(error_max-error_min)
+            print(P)
+
+            if flag:                
+                if P <= P_best:
+                    P_best = P
+                    answer_p4 = u
+            else:
                 P_best = P
-                answer_p4 = u
-        else:
-            P_best = P
-            flag = True
+                flag = True
 
-
-print(answer_p3)
-print(S_min)
-print(answer_p4)
-print(P_best)
-
-
-
+    print("以下为答案\n:")
+    print(answer_p3)
+    print(S_min)
+    print(answer_p4)
+    print(P_best)
+    x=time.strftime("%H%M%S")
+    wb= openpyxl.load_workbook("prob3.xlsx")
+    sheet=wb['Sheet1']
+    answer_p3=np.append(answer_p3,S_min)
+    for j in range (7):
+        sheet.cell(row=counter+1,column=j+1,value=answer_p3[j])
+    wb.save("prob3.xlsx")
+    #answer_p3=np.append(answer_p3,S_min)
+    #answer_p4=answer_p4.transpose()
+    #dataoutput3=pd.DataFrame(answer_p3)
+    ##dataoutput3.index=["速度","T1","T2","T3","T4"]
+    #dataoutput3.to_csv(r"C:\Users\junto\Desktop\mathematical modelling\CUMCM\CUMCM2020A\CUMCM2020A\p3\%s.csv"%x)
+    ##dataoutput4=pd.DataFrame(answer_p3)
+    ##dataoutput3.index=["速度","T1","T2","T3","T4"]
+    ##dataoutput4.to_excel("\\p4\\%s.xlsx"%x)
+    
+    counter=counter+1
