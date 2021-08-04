@@ -283,8 +283,9 @@ def mirror_error(u_list):
         error += abs(u_list[2*max_time-j]-u_list[j])
     return error
 
+data3=[]
 nrows=0
-cycletimes = 10000
+cycletimes = 50000
 while True:
     tempre_pre = chao(cycletimes,165,185)
     tempre_stable1 = chao(cycletimes,185,205)
@@ -303,7 +304,9 @@ while True:
     error_max = 0
     error_min = 0
     answer_p3 = np.zeros(5)
-
+    wb3=openpyxl.load_workbook("prob3.xlsx")
+    temp3=wb3['Sheet1']
+    temp3=wb3.active
     #遍历求最小面积，顺便求最大面积和误差
     for u in data_list:
         u_list = u_cacl(u[0],u[2:])
@@ -332,20 +335,20 @@ while True:
                 error_min = error
                 error_max = error
                 flag = True
-            wb=openpyxl.load_workbook("prob3.xlsx")
-            temp=wb['Sheet1']
-            temp=wb.active
-            nrows = temp.max_row
+
+            
+            nrows = temp3.max_row
             u=np.append(u,S)
-            for j in range (6):
-                temp.cell(row=nrows+1,column=j+1,value=u[j])
-            wb.save("prob3.xlsx")
+            for j in range (7):
+                temp3.cell(row=nrows+1,column=j+1,value=u[j])
             print(u)
-    
+    wb3.save("prob3.xlsx")
     flag = False
     P_best = 0
     answer_p4 = np.zeros(5)
-
+    wb=openpyxl.load_workbook("prob4.xlsx")
+    temp=wb['Sheet1']
+    temp=wb.active
     #遍历求综合指标
     for u in data_list:
         if u[1]:#只对标记为True的遍历，不再重复调用判断函数
@@ -364,17 +367,15 @@ while True:
             else:
                 P_best = P
                 flag = True
-            wb=openpyxl.load_workbook("prob4.xlsx")
-            temp=wb['Sheet1']
-            temp=wb.active
+            
             nrows = temp.max_row
             u=np.append(u,P)
-            for j in range (6):
+            for j in range (7):
                 temp.cell(row=nrows+1,column=j+1,value=u[j])
-            wb.save("prob4.xlsx")
+            
             print(u)
 
-    
+    wb.save("prob4.xlsx")
 
     
     
