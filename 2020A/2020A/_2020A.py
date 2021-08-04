@@ -36,7 +36,7 @@ def search_k(start, end, k_predict):
         else: 
             error = error_tmp
             flag = True
-
+    error=error/(end-start)
     return [k_best, error]
 
 k1 = search_k(0,291,0.017)
@@ -54,7 +54,7 @@ cal_klist = [k1[0], k2[0], k3[0], k4[0], k5[0]] #每段最优k
 data_df=pd.DataFrame(kerror)
 data_df.columns =["k","error"]
 data_df.index = ["k1","k2","k3","k4","k5"]
-writer = pd.ExcelWriter('..\..\klist.xls')  
+writer = pd.ExcelWriter('klist.xlsx')  
 data_df.to_excel(writer,float_format='%.7f')  
 writer.save()
 
@@ -79,7 +79,7 @@ def painter(y, title,filetitle,contrast):
     plt.ylabel("温度(℃)")
     plt.plot(time_org,y)
     if contrast:
-        plt.plot(time_org,data_org)
+        plt.plot(time_org,data_org,ls='--')
     plt.savefig('%s.png' %filetitle)
     #plt.show()
 
