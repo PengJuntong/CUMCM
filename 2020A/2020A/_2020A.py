@@ -5,7 +5,8 @@ import xlrd
 from matplotlib import pyplot as plt
 import matplotlib
 import pandas as pd
-from process import T_air, k_s
+from function import *
+
 import time
 import openpyxl
 
